@@ -6,7 +6,6 @@ import klawSync from 'klaw-sync';
 import {getOMDBDataForShow} from "./OMDBService";
 import {Episode, MovieMedia, PlayableMediaMetadata, SeriesEpisode, SeriesMedia, SeriesSources} from "../../types/Media";
 import sha1 from 'sha1';
-import {file} from "@babel/types";
 
 const getAllFilesOfTypeFromDirectory = (directory: string, fileTypes: Array<string>): Array<string> => {
     return klawSync(directory, {
