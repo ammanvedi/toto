@@ -1,0 +1,17 @@
+[
+  {
+    // Client
+    "uid": "toto_client",
+    "append": true,
+    "watch": false,
+    "command": "/bin/bash",
+    "script": "client/serve.sh"
+  },
+  {
+    // Server
+    "uid": "toto_server",
+    "append": true,
+    "watch": false,
+    "script": "dist/server/index.js"
+  }
+]

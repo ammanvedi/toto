@@ -4,13 +4,14 @@
   "description": "A simple web based media library",
   "main": "dist/server/index.js",
   "scripts": {
-    "client-start": "node client/scripts/start.js",
-    "client-build": "node client/scripts/build.js",
-    "client-test": "node client/scripts/test.js",
+    "client-start": "cd client && node scripts/start.js",
+    "client-build": "cd client && node scripts/build.js",
+    "client-test": "cd client && node scripts/test.js",
     "build-server": "cd server && tsc",
-    "build": "npm run build-server",
+    "build": "npm run build-server && npm run client-build",
     "test": "jest",
-    "start": "node dist/server/index.js"
+    "start": "forever stopall && forever start ./forever.config.json",
+    "rpi": "npm install --production && npm run start"
   },
   "eslintConfig": {
     "extends": "react-app"
