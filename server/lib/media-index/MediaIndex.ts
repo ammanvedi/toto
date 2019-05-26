@@ -1,10 +1,9 @@
-import {MediaIndex} from "../../types/MediaIndex";
-import {MediaType, Metadata} from "../../types/Metadata";
+import {MediaIndex} from "../../../types/MediaIndex";
+import {MediaType, Metadata} from "../../../types/Metadata";
 import {readdirSync, readFileSync, statSync} from 'fs';
 import {extname, join} from 'path';
 import klawSync from 'klaw-sync';
-import {getOMDBDataForShow} from "./OMDBService";
-import {Episode, MovieMedia, PlayableMediaMetadata, SeriesEpisode, SeriesMedia, SeriesSources} from "../../types/Media";
+import {Episode, MovieMedia, PlayableMediaMetadata, SeriesEpisode, SeriesMedia, SeriesSources} from "../../../types/Media";
 import sha1 from 'sha1';
 
 const getAllFilesOfTypeFromDirectory = (directory: string, fileTypes: Array<string>): Array<string> => {
@@ -126,25 +125,16 @@ export const createMediaIndex = async (rootFolders: Array<string>, fileTypes: Ar
             const videoFiles = getAllFilesOfTypeFromDirectory(fullDirectoryPath, fileTypes);
             console.log(`found ${videoFiles.length} video files`)
             // now fetch the metadata from the OMDB service
-            let OMDBData: PlayableMediaMetadata | null;
-            try {
-                console.log('trying to fetch OMDB data...');
-                OMDBData = await getOMDBDataForShow(metadata.imdb_id);
-                console.log(`success fetching OMDB data for show ${OMDBData.title}`);
-            } catch {
-                console.log('failed fetching OMDB data, skipping...')
-                continue;
-            }
 
             // now create a media type object based on the type of show we are dealing with
 
             switch(metadata.type) {
                 case MediaType.MOVIE:
                     if (videoFiles.length > 1) {
-                        console.log(`Movie ${OMDBData.title} in directory ${directory} was found to have more than one movie source, taking first source`)
+                        console.log(`Movie in directory ${directory} was found to have more than one movie source, taking first source`)
                     }
                     const movie: MovieMedia = {
-                        ...OMDBData,
+                        imdbId: metadata.imdb_id,
                         type: MediaType.MOVIE,
                         sourceId: createSourceIdAndStoreInIndex(videoFiles[0], mediaIndex.fileIndex),
                     };
@@ -152,7 +142,7 @@ export const createMediaIndex = async (rootFolders: Array<string>, fileTypes: Ar
                     break;
                 case MediaType.SERIES:
                     const series: SeriesMedia = {
-                        ...OMDBData,
+                        imdbId: metadata.imdb_id,
                         type: MediaType.SERIES,
                         source: organiseEpisodes(videoFiles, mediaIndex.fileIndex)
                     };

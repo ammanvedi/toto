@@ -41,12 +41,16 @@ export type PlayableMediaMetadata = {
     imdbRating: string,
 }
 
-export type MovieMedia = PlayableMediaMetadata & {
+export type BaseFeature = {
+    imdbId: string,
+}
+
+export type MovieMedia = BaseFeature & {
     type: MediaType.MOVIE,
     sourceId: string
 }
 
-export type SeriesMedia = PlayableMediaMetadata & {
+export type SeriesMedia = BaseFeature & {
     type: MediaType.SERIES,
     source: SeriesSources
 }

@@ -1,4 +1,6 @@
+
 import {createMediaIndex} from "./MediaIndex";
+
 import {join} from 'path';
 
 require('dotenv').config();
@@ -21,6 +23,8 @@ describe('createMediaIndex', () => {
         expect(result.series[0].source.series.length).toBe(2);
 
         expect(result.movies[0].type).toBe('MOVIE');
+
+        console.log(JSON.stringify(result));
     })
 
 });

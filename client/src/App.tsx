@@ -8,7 +8,7 @@ const App: React.FC = () => {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <video controls>
-          <source src="http://192.168.0.116:3001/video/11dacc6ab253d416d782e57cc3ddf420719b9cef" type="video/mp4" />
+          <source src="http://localhost:3008/video/4589010c95930169b23c9a3c02777575c3754a0c" type="video/mp4" />
         </video>
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
