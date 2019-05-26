@@ -16,12 +16,6 @@ if (!NODE_ENV) {
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 var dotenvFiles = [
-  `${paths.dotenv}.${NODE_ENV}.local`,
-  `${paths.dotenv}.${NODE_ENV}`,
-  // Don't include `.env.local` for `test` environment
-  // since normally you expect tests to produce the same
-  // results for everyone
-  NODE_ENV !== 'test' && `${paths.dotenv}.local`,
   paths.dotenv,
 ].filter(Boolean);
 
@@ -58,7 +52,7 @@ process.env.NODE_PATH = (process.env.NODE_PATH || '')
 
 // Grab NODE_ENV and REACT_APP_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in Webpack configuration.
-const REACT_APP = /^REACT_APP_/i;
+const REACT_APP = /^TOTO_/i;
 
 function getClientEnvironment(publicUrl) {
   const raw = Object.keys(process.env)

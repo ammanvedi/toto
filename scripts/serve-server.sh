@@ -1,5 +1,5 @@
 #!/bin/bash
 
-kill -9 $(lsof -t -i:3007)
-export TOTO_PORT=3008
+export $(xargs <.env)
+kill -9 $(lsof -t -i:${TOTO_SERVER_PORT})
 node dist/server/index.js

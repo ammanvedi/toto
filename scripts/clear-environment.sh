@@ -1,0 +1,6 @@
+unset OMDB_API
+unset TOTO_ROOTS
+unset TOTO_FORMATS
+unset TOTO_CLIENT_PORT
+unset TOTO_SERVER_PORT
+unset TOTO_DB_PORT

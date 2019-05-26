@@ -11,9 +11,7 @@ import {
 } from "./lib/media-index/EvaluateMediaIndex";
 import {LibraryWatchHistory} from "../types/Database";
 
-require('dotenv').config();
-
-const port = process.env.TOTO_PORT;
+const port = process.env.TOTO_SERVER_PORT;
 const roots = process.env.TOTO_ROOTS;
 const formats = process.env.TOTO_FORMATS;
 
@@ -21,7 +19,7 @@ const app = express();
 app.use(bodyParser.json());
 
 let mediaIndex: MediaIndex;
-const database  = new FeatureDatabase(process.env.TOTO_MONGO_PORT || '3000');
+const database  = new FeatureDatabase(process.env.TOTO_DB_PORT || '3000');
 
 app.get('/library', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');

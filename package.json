@@ -4,7 +4,8 @@
   "description": "A simple web based media library",
   "main": "dist/server/index.js",
   "scripts": {
-    "build-client": "cd client && node scripts/build.js",
+    "clear-environment": ". ./scripts/clear-environment.sh",
+    "build-client": "npm run clear-environment && cd client && node scripts/build.js",
     "build-server": "cd server && tsc",
     "build-all": "mkdir ./dist || rm -r ./dist && npm run build-server && npm run build-client",
     "start-client": "cd client && node scripts/start.js",

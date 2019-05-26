@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export $(xargs <.env)
 cd ./dist/client
-kill -9 $(lsof -t -i:3009)
-python -m SimpleHTTPServer 3009
+kill -9 $(lsof -t -i:${TOTO_CLIENT_PORT})
+python -m SimpleHTTPServer ${TOTO_CLIENT_PORT}
