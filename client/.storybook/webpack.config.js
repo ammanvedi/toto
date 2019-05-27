@@ -24,7 +24,7 @@ module.exports = ({ config }) => {
             },
             require.resolve('sass-loader'),
         ]
-    })
+    });
     config.resolve.extensions.push('.ts', '.tsx');
     return config;
 };

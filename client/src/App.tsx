@@ -1,6 +1,5 @@
 import React from 'react';
 import logo from './logo.svg';
-import './App.scss';
 import Thumb from './component/thumb/thumb';
 
 const App: React.FC = () => {
