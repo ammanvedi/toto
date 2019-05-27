@@ -1,13 +1,14 @@
 import React from 'react';
 import logo from './logo.svg';
-import './App.css';
+import './App.scss';
+import Thumb from './component/thumb/thumb';
 
 const App: React.FC = () => {
-  console.log(process.env);
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
+        <Thumb />
         <video controls>
           <source src={`http://${window.location.hostname}:${process.env.TOTO_SERVER_PORT}/video/4589010c95930169b23c9a3c02777575c3754a0c`} type="video/mp4" />
         </video>
