@@ -6,10 +6,12 @@ export type APIExtras = {
 }
 
 export type LibraryFeature = DatabaseFeature & APIExtras & {
+    __typename: 'LibraryFeature',
     watchHistory: MovieWatchHistory | null
 };
 
 export type LibrarySeries = DatabaseFeature & {
+    __typename: 'LibrarySeries',
     availableSeasons: Array<number>,
     watchHistory: SeriesWatchHistory | null
 }

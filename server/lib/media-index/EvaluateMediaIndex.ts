@@ -154,6 +154,7 @@ export const getLibraryresponseFromMediaIndex = async (mediaIndex: MediaIndex, d
         if (movieData) {
             const history = await database.getFeatureWatchHistory(movieData.imdbID);
             response.movies.push({
+                __typename: 'LibraryFeature',
                 ...movieData,
                 sourceId: movie.sourceId,
                 watchHistory: history && history.type === FeatureType.MOVIE ? history : null
@@ -168,6 +169,7 @@ export const getLibraryresponseFromMediaIndex = async (mediaIndex: MediaIndex, d
         if (seriesData) {
             const history = await database.getFeatureWatchHistory(seriesData.imdbID);
             response.series.push({
+                __typename: 'LibrarySeries',
                 ...seriesData,
                 availableSeasons: getAvailableSeries(seriesFeature.source),
                 watchHistory: history && history.type === FeatureType.SERIES ? history : null

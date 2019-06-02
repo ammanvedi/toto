@@ -146,15 +146,25 @@ export class FeatureDatabase {
                     });
                 break;
             case FeatureType.SERIES:
-                return this.watchHistoryCollection.updateOne({
-                    imdbId: historyItem.imdbId,
-                    series: historyItem.series,
-                    episode: historyItem.episode,
-                }, { $set: historyItem }, {
-                    upsert: true
-                })
-                    .then(res => {
-                        return res.upsertedCount === 1;
+                return this.getFeatureEpisode(historyItem.imdbId, historyItem.series, historyItem.episode)
+                    .then(episode => {
+                        if (!episode || !this.watchHistoryCollection) {
+                            return Promise.reject();
+                        }
+
+                        return this.watchHistoryCollection.updateOne({
+                            imdbId: historyItem.imdbId,
+                            series: historyItem.series,
+                            episode: historyItem.episode,
+                        }, { $set: {
+                                ...historyItem,
+                                episodeRuntime: episode.Runtime,
+                            } }, {
+                            upsert: true
+                        })
+                            .then(res => {
+                                return res.upsertedCount === 1;
+                            });
                     });
                 break;
         }

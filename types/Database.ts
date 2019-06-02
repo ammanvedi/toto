@@ -18,6 +18,7 @@ export type SeriesWatchHistory = HistoryMetrics & {
     type: FeatureType.SERIES,
     episode: string,
     series: string,
+    episodeRuntime: string,
 }
 
 export type MovieWatchHistory = HistoryMetrics & {

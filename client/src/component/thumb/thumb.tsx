@@ -1,9 +1,15 @@
 import React from 'react';
-
 import styles from './thumb.module.scss';
+import {Image} from "../image/image";
 
-const thumb = () => (
-    <div className={styles.thumb}>dasdsdsdadsd</div>
+export type ThumbProps = {
+    posterUrl: string,
+    watchedPercentage: number,
+
+};
+
+const Thumb = ({ posterUrl, watchedPercentage }: ThumbProps) => (
+    <Image src={posterUrl} />
 );
 
-export default thumb;
+export default Thumb;
