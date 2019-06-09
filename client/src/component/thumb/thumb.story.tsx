@@ -6,6 +6,13 @@ const stories = storiesOf('Components', module);
 
 stories.add(
     'Thumb',
-    () => <Thumb posterUrl={'abc'} watchedPercentage={0} />,
+    () => (
+        <div style={{width: 200}}>
+            <Thumb
+                posterUrl='https://i.imgur.com/Bj2tD15.jpg'
+                watchedPercentage={0} />
+        </div>
+    ),
+
     { info: { inline: true } }
 );

@@ -1,0 +1,17 @@
+
+$gutter: 20px;
+
+.thumb-list {
+  overflow: hidden;
+
+  &__list {
+    display: flex;
+    margin: 0 (-$gutter / 2);
+  }
+
+  &__item {
+    cursor: pointer;
+    width: 250px;
+    margin: ($gutter / 2);
+  }
+}

@@ -5,6 +5,6 @@ const App: React.FC = () => {
   return (
     <LibraryHome/>
   );
-}
+};
 
 export default App;

@@ -60,7 +60,7 @@ app.post('/library/history', async (req, res) => {
         console.log(e.stack);
         res.status(500).end();
     }
-})
+});
 
 app.get('/library/:id/season/:season', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
