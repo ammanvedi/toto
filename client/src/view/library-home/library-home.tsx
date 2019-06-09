@@ -8,6 +8,7 @@ import {ThumbList} from "../../component/thumb-list/thumb-list";
 import Modal from 'react-modal';
 import VideoPage from "../video-page/video-page";
 import EpisodeList from "../episode-list/episode-list";
+import FeatureInfo from "../feature-info/feature-info";
 
 const LibraryDataProvider = DataProvider as DataProviderType<LibraryResponse>;
 
@@ -15,41 +16,69 @@ export const LibraryHome = () => {
 
     const [videoModalOpen, setVideoModalOpen] = useState(false);
     const [seriesModalOpen, setSeriesModalOpen] = useState(false);
+    const [featureModalOpen, setFeatureModalOpen] = useState(false);
     const [currentVideo, setCurrentVideo] = useState('');
     const [currentSeries, setCurrentSeries] = useState<LibrarySeries | null>(null);
+    const [currentFeature, setCurrentFeature] = useState<LibraryFeature | null>(null);
 
     const openVideoModal = () => {
         setVideoModalOpen(true);
         setSeriesModalOpen(false);
+        setFeatureModalOpen(false)
     };
 
     const openSeriesModal = () => {
         setVideoModalOpen(false);
+        setFeatureModalOpen(false);
         setSeriesModalOpen(true);
+    };
+
+    const openFeatureModal = () => {
+        setVideoModalOpen(false);
+        setFeatureModalOpen(true);
+        setSeriesModalOpen(false);
     };
 
     const closeAllModals = () => {
         setVideoModalOpen(false);
         setSeriesModalOpen(false);
+        setFeatureModalOpen(false);
     };
 
     const onClicked = (item: LibraryFeature | LibrarySeries) => {
         switch (item.__typename) {
             case "LibraryFeature":
-                openVideoModal();
-                setCurrentVideo(URL_VIDEO(item.sourceId));
+                setCurrentFeature(item);
+                openFeatureModal();
                 break;
             case "LibrarySeries":
-                openSeriesModal();
                 setCurrentSeries(item);
-                setSeriesModalOpen(true);
+                openSeriesModal();
                 break;
         }
     };
 
     const onEpisodeClicked = (episode: LibraryEpisode) => {
-        console.log(episode);
         setCurrentVideo(URL_VIDEO(episode.sourceId));
+        openVideoModal();
+    };
+
+    const modalProps = {
+        shouldCloseOnEsc: true,
+        shouldCloseOnOverlayClick: true,
+        onRequestClose: closeAllModals,
+    };
+
+    const onSeriesRequestedPlay = () => {
+        // in this case we fetch and play the most recent episode?
+        openVideoModal();
+    };
+
+    const onFeatureRequestedPlay = () => {
+        if (!currentFeature) {
+            return;
+        }
+        setCurrentVideo(URL_VIDEO(currentFeature.sourceId));
         openVideoModal();
     };
 
@@ -63,12 +92,29 @@ export const LibraryHome = () => {
 
                 return (
                     <Fragment>
-                        <Modal shouldCloseOnEsc shouldCloseOnOverlayClick isOpen={seriesModalOpen}>
+                        <Modal
+                            {...modalProps}
+                            isOpen={seriesModalOpen}>
                             {currentSeries && (
-                                <EpisodeList feature={currentSeries} episodeClicked={onEpisodeClicked}/>
+                                <Fragment>
+                                    <FeatureInfo feature={currentSeries}
+                                                 onRequestPlay={onSeriesRequestedPlay} />
+                                    <EpisodeList feature={currentSeries}
+                                                 episodeClicked={onEpisodeClicked} />
+                                </Fragment>
                             )}
                         </Modal>
-                        <Modal shouldCloseOnEsc shouldCloseOnOverlayClick isOpen={videoModalOpen}>
+                        <Modal
+                            {...modalProps}
+                            isOpen={featureModalOpen}>
+                            {currentFeature && (
+                                <FeatureInfo feature={currentFeature}
+                                             onRequestPlay={onFeatureRequestedPlay} />
+                            )}
+                        </Modal>
+                        <Modal
+                            {...modalProps}
+                            isOpen={videoModalOpen}>
                             <VideoPage src={currentVideo} />
                         </Modal>
                         <ThumbList itemClicked={onClicked} title='Movies' items={data.movies}/>

@@ -25,7 +25,7 @@ const EpisodeList = ({ feature, episodeClicked }: EpisodeListProps) => {
         <div>
             <select onChange={onSeriesSelectChange} value={currentSeason}>
                 {feature.availableSeasons.map(season => (
-                    <option value={season}>{season}</option>
+                    <option key={season} value={season}>{season}</option>
                 ))}
             </select>
             <SeriesDataProvider url={URL_SEASON(feature.imdbID, currentSeason)}>
