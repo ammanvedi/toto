@@ -7,8 +7,9 @@ import {getThumbPropsFromFeature} from "../../helper/library-feature-helper";
 import {ThumbList} from "../../component/thumb-list/thumb-list";
 import Modal from 'react-modal';
 import VideoPage from "../video-page/video-page";
-import EpisodeList from "../episode-list/episode-list";
+import SeriesPage from "../series-page/series-page";
 import FeatureInfo from "../feature-info/feature-info";
+import FeaturePage from "../feature-page/feature-page";
 
 const LibraryDataProvider = DataProvider as DataProviderType<LibraryResponse>;
 
@@ -97,10 +98,8 @@ export const LibraryHome = () => {
                             isOpen={seriesModalOpen}>
                             {currentSeries && (
                                 <Fragment>
-                                    <FeatureInfo feature={currentSeries}
-                                                 onRequestPlay={onSeriesRequestedPlay} />
-                                    <EpisodeList feature={currentSeries}
-                                                 episodeClicked={onEpisodeClicked} />
+                                    <SeriesPage feature={currentSeries}
+                                                episodeClicked={onEpisodeClicked} />
                                 </Fragment>
                             )}
                         </Modal>
@@ -108,8 +107,7 @@ export const LibraryHome = () => {
                             {...modalProps}
                             isOpen={featureModalOpen}>
                             {currentFeature && (
-                                <FeatureInfo feature={currentFeature}
-                                             onRequestPlay={onFeatureRequestedPlay} />
+                                <FeaturePage feature={currentFeature} onRequestPlay={onFeatureRequestedPlay}/>
                             )}
                         </Modal>
                         <Modal
