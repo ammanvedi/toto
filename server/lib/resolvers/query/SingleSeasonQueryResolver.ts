@@ -42,6 +42,7 @@ export const singleSeasonQueryResolver = async (
             const watchHistory = await database.getSeriesWatchHistory(seriesId, season, episode.episodeNumber[1].toString());
             console.log('single season resolver fetched history', watchHistory, seriesId, season, episode.episodeNumber);
             episodes.push({
+                __typename: 'LibraryEpisode',
                 ...episodeData,
                 sourceId: episode.sourceFileId,
                 watchHistory
@@ -50,6 +51,7 @@ export const singleSeasonQueryResolver = async (
     }
 
     return {
+        __typename: 'LibrarySeason',
         feature: seriesData,
         episodes
     }

@@ -22,6 +22,7 @@ export const singleLibraryFeatureQueryResolver = async (
         }
 
         return {
+            __typename: 'LibraryFeature',
             ...movieData,
             sourceId: indexEntry.sourceId,
             watchHistory: history && history.type === FeatureType.MOVIE ? history : null

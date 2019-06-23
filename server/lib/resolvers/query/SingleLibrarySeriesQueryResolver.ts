@@ -21,6 +21,7 @@ export const singleLibrarySeriesQueryResolver = async (
             return null;
         }
         return {
+            __typename: 'LibrarySeries',
             ...seriesData,
             availableSeasons: getAvailableSeries(indexEntry.source),
             watchHistory: history && history.type === FeatureType.SERIES ? history : null
