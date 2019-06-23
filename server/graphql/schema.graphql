@@ -1,0 +1,226 @@
+type Rating {
+    source: String!,
+    value: String!
+}
+
+enum FeatureType {
+    MOVIE,
+    SERIES,
+    EPISODE,
+}
+
+union WatchHistory = SeriesWatchHistory | MovieWatchHistory
+
+interface WithSource {
+    sourceId: String,
+}
+
+interface WithAvailableSeasons {
+    availableSeasons: [Int!]
+}
+
+interface OMDBFeature {
+    title: String!,
+    year: String!,
+    rated: String!,
+    released: String!,
+    runtime: String!,
+    genre: String!,
+    director: String!,
+    writer: String!,
+    actors: String!,
+    plot: String!,
+    language: String!,
+    country: String!,
+    awards: String!,
+    poster: String!,
+    ratings: [Rating!],
+    metascore: String!,
+    imdbRating: String!,
+    imdbVotes: String!,
+    imdbId: ID!,
+    type: FeatureType!,
+    totalSeasons: String!,
+    addedToLibrary: Int!,
+}
+
+interface OMDBEpisode {
+    title: String!,
+    year: String,
+    rated: String,
+    released: String,
+    runtime: String,
+    genre: String,
+    director: String,
+    writer: String,
+    actors: String,
+    plot: String,
+    language: String,
+    country: String,
+    awards: String,
+    poster: String,
+    ratings: [Rating!],
+    metascore: String,
+    imdbRating: String,
+    imdbVotes: String,
+    imdbId: ID,
+    type: FeatureType!,
+    addedToLibrary: Int!,
+    seriesId: ID!,
+    season: String!,
+    episode: String!,
+    incompleteData: Boolean!,
+}
+
+interface WithDateAdded {
+    addedToLibrary: Int!
+}
+
+interface WithHistoryMetrics {
+    imdbId: ID!,
+    finishedWatchingAtDateTime: Int!,
+    finishedWatchingAtSeconds: Int!
+}
+
+type MovieWatchHistory implements WithHistoryMetrics {
+    imdbId: ID!,
+    finishedWatchingAtDateTime: Int!,
+    finishedWatchingAtSeconds: Int!
+}
+
+type SeriesWatchHistory implements WithHistoryMetrics {
+    imdbId: ID!,
+    finishedWatchingAtDateTime: Int!,
+    finishedWatchingAtSeconds: Int!,
+    episode: String!,
+    series: String!,
+    episodeRuntime: String,
+}
+
+type LibrarySeries implements OMDBFeature {
+    watchHistory: SeriesWatchHistory,
+    availableSeasons: [Int!]!,
+    title: String!,
+    year: String!,
+    rated: String!,
+    released: String!,
+    runtime: String!,
+    genre: String!,
+    director: String!,
+    writer: String!,
+    actors: String!,
+    plot: String!,
+    language: String!,
+    country: String!,
+    awards: String!,
+    poster: String!,
+    ratings: [Rating!],
+    metascore: String!,
+    imdbRating: String!,
+    imdbVotes: String!,
+    imdbId: ID!,
+    type: FeatureType!,
+    totalSeasons: String!,
+    addedToLibrary: Int!,
+}
+
+type LibraryFeature implements OMDBFeature & WithSource {
+    watchHistory: MovieWatchHistory,
+    sourceId: String!,
+    title: String!,
+    year: String!,
+    rated: String!,
+    released: String!,
+    runtime: String!,
+    genre: String!,
+    director: String!,
+    writer: String!,
+    actors: String!,
+    plot: String!,
+    language: String!,
+    country: String!,
+    awards: String!,
+    poster: String!,
+    ratings: [Rating!],
+    metascore: String!,
+    imdbRating: String!,
+    imdbVotes: String!,
+    imdbId: ID!,
+    type: FeatureType!,
+    totalSeasons: String!,
+    addedToLibrary: Int!,
+}
+
+type LibraryEpisode implements OMDBEpisode & WithSource {
+    watchHistory: SeriesWatchHistory,
+    title: String!,
+    year: String,
+    rated: String,
+    released: String,
+    runtime: String,
+    genre: String,
+    director: String,
+    writer: String,
+    actors: String,
+    plot: String,
+    language: String,
+    country: String,
+    awards: String,
+    poster: String,
+    ratings: [Rating!],
+    metascore: String,
+    imdbRating: String,
+    imdbVotes: String,
+    imdbId: ID,
+    type: FeatureType!,
+    addedToLibrary: Int!,
+    seriesId: ID!,
+    season: String!,
+    episode: String!,
+    incompleteData: Boolean!,
+    sourceId: String,
+}
+
+type LibrarySeason {
+    feature: LibrarySeries!,
+    episodes: [LibraryEpisode!]!
+}
+
+type FeatureWatchResponse {
+    updatedHistory: [WatchHistory!],
+    updatedFeature: LibraryFeature,
+}
+
+type SeriesWatchResponse {
+    updatedHistory: [WatchHistory!],
+    updatedSeries: LibrarySeries,
+    updatedSeason: LibrarySeason,
+}
+
+input FeatureWatchHistoryInput {
+    imdbId: ID!,
+    finishedWatchingAtDateTime: Int!,
+    finishedWatchingAtSeconds: Int!,
+}
+
+input SeriesWatchHistoryInput {
+    imdbId: ID!,
+    finishedWatchingAtDateTime: Int!,
+    finishedWatchingAtSeconds: Int!,
+    episode: String!,
+    series: String!,
+}
+
+type Query {
+    allLibrarySeries: [LibrarySeries!],
+    singleLibrarySeries(imdbId: ID!): LibrarySeries,
+    allLibraryFeatures: [LibraryFeature!],
+    singleLibraryFeature(imdbId: ID!): LibraryFeature,
+    singleSeason(seriesId: ID!, season: String!): LibrarySeason,
+    watchHistory: [WatchHistory!],
+}
+
+type Mutation {
+    trackFeatureWatch(watched: FeatureWatchHistoryInput): FeatureWatchResponse,
+    trackSeriesWatch(watched: SeriesWatchHistoryInput): SeriesWatchResponse
+}

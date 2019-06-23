@@ -1,3 +1,6 @@
+// These are the types that are returned from OMDB api. We will convert these to
+// schema type sin our code.
+
 export type APIParameters = {
     i?: string,
     apikey?: string,

@@ -7,15 +7,23 @@ import {
     MovieWatchHistory,
     SeriesWatchHistory
 } from "../../../types/Database";
+import {
+    FeatureWatchHistoryInput,
+    LibraryEpisode,
+    OmdbEpisode,
+    OmdbFeature,
+    SeriesWatchHistoryInput,
+    WatchHistory
+} from "../../../types/Schema";
 
 export class FeatureDatabase {
 
     private connected: boolean = false;
     private client: MongoClient | null = null;
     private database: Db | null = null;
-    private featureCollection: Collection<DatabaseFeature> | null = null;
-    private featureEpisodeCollection: Collection<DatabaseFeatureEpisode> | null = null;
-    private watchHistoryCollection: Collection<LibraryWatchHistory> | null = null;
+    private featureCollection: Collection<OmdbFeature> | null = null;
+    private featureEpisodeCollection: Collection<OmdbEpisode> | null = null;
+    private watchHistoryCollection: Collection<WatchHistory> | null = null;
 
     private static FEATURES_DB = 'features_db';
     private static FEATURES_COLLECTION = 'features_collection';
@@ -41,51 +49,103 @@ export class FeatureDatabase {
             });
     }
 
-    storeFeature(feature: Feature): Promise<boolean> {
+    // Features (Movies/Series)
+
+    storeFeature(feature: OmdbFeature): Promise<boolean> {
         if (!this.featureCollection) {
             return Promise.reject();
         }
-        return this.featureCollection.insertOne({
-            ...feature,
-            addedToLibrary: new Date().getTime(),
-        })
+        console.log('Storing feature', feature.title);
+        return this.featureCollection.insertOne(feature)
             .then(result => {
                 return result.insertedCount === 1;
             })
     }
 
-    storeFeatureEpisode(episode: FeatureEpisode): Promise<boolean> {
-        if (!this.featureEpisodeCollection) {
-            return Promise.reject();
-        }
-        return this.featureEpisodeCollection.insertOne({
-            ...episode,
-            addedToLibrary: new Date().getTime(),
-        })
-            .then(result => {
-                return result.insertedCount === 1;
-            })
-    }
-
-    getFeature(imdbID: string): Promise<DatabaseFeature | null> {
+    getFeature(imdbId: string): Promise<OmdbFeature | null> {
         if (!this.database || !this.featureCollection) {
             return Promise.reject('database was null');
         }
-        return this.featureCollection.findOne({ imdbID });
+        return this.featureCollection.findOne({ imdbId });
     }
 
-    getFeatureEpisode(seriesID: string, season: string, episode: string): Promise<DatabaseFeatureEpisode | null> {
+    // Episodes
+
+    storeFeatureEpisode(episode: OmdbEpisode): Promise<boolean> {
+        if (!this.featureEpisodeCollection) {
+            return Promise.reject();
+        }
+
+        return this.featureEpisodeCollection.updateOne({
+            seriesId: episode.seriesId,
+            episode: episode.episode,
+            season: episode.season,
+        }, { $set: episode }, {
+            upsert: true
+        })
+            .then(res => {
+                return res.upsertedCount === 1 || res.modifiedCount === 1;
+            });
+    }
+
+    getFeatureEpisode(seriesId: string, season: string, episode: string): Promise<OmdbEpisode | null> {
         if (!this.database || !this.featureEpisodeCollection) {
             return Promise.reject('database was null');
         }
         return this.featureEpisodeCollection.findOne({
-            seriesID,
-            Season: season,
-            Episode: episode,
+            seriesId,
+            season,
+            episode,
         });
     }
 
-    getLibraryWatchHistory(): Promise<Array<LibraryWatchHistory>> {
+    // Watch History
+
+    storeFeatureWatchHistory(input: FeatureWatchHistoryInput): Promise<boolean> {
+        if (!this.watchHistoryCollection) {
+            return Promise.reject('Database not ready');
+        }
+
+        return this.watchHistoryCollection.updateOne({
+            imdbId: input.imdbId
+        }, { $set: input }, {
+            upsert: true
+        })
+            .then(res => {
+                return res.upsertedCount === 1 || res.modifiedCount === 1;
+            });
+    }
+
+
+    storeSeriesWatchHistory(input: SeriesWatchHistoryInput): Promise<boolean> {
+        if (!this.watchHistoryCollection) {
+            return Promise.reject('Database not ready');
+        }
+
+        return this.getFeatureEpisode(input.imdbId, input.series, input.episode)
+            .then(episode => {
+                if (!episode || !this.watchHistoryCollection) {
+                    return Promise.reject();
+                }
+
+                return this.watchHistoryCollection.updateOne({
+                    imdbId: input.imdbId,
+                    series: input.series,
+                    episode: input.episode,
+                }, { $set: {
+                        ...input,
+                        episodeRuntime: episode.runtime,
+                    } }, {
+                    upsert: true
+                })
+                    .then(res => {
+                        console.log('store series watch history, upserted', res.upsertedCount)
+                        return res.upsertedCount === 1 || res.modifiedCount === 1;
+                    });
+            });
+    }
+
+    getLibraryWatchHistory(): Promise<Array<WatchHistory>> {
 
         return new Promise((resolve, reject) => {
             if (!this.database || !this.watchHistoryCollection) {
@@ -99,19 +159,23 @@ export class FeatureDatabase {
                     return reject(err);
                 }
 
-                resolve(res);
+                const unrefined = <Array<SeriesWatchHistory & MovieWatchHistory>> <unknown> res;
+
+                resolve(unrefined.map(history => <any> ({
+                    ...history,
+                    __typename: history.episode ? 'SeriesWatchHistory' : 'MovieWatchHistory',
+                })));
             });
         })
     }
 
-    getFeatureWatchHistory(imdbId: string, series?: string, episode?: string): Promise<LibraryWatchHistory | null> {
-
+    getSeriesWatchHistory(imdbId: string, series?: string, episode?: string): Promise<SeriesWatchHistory | null> {
         if (!this.database || !this.watchHistoryCollection) {
             return Promise.reject('database was null');
         }
 
         if (series && episode) {
-            return this.watchHistoryCollection.findOne({
+            return <Promise<SeriesWatchHistory>> this.watchHistoryCollection.findOne({
                 imdbId,
                 series,
                 episode
@@ -129,46 +193,16 @@ export class FeatureDatabase {
 
     }
 
-    storeLibraryWatchHistoryEntry(historyItem: LibraryWatchHistory): Promise<boolean> {
-        if (!this.watchHistoryCollection) {
-            return Promise.reject();
+    getFeatureWatchHistory(imdbId: string): Promise<MovieWatchHistory | null> {
+        if (!this.database || !this.watchHistoryCollection) {
+            return Promise.reject('database was null');
         }
 
-        switch (historyItem.type) {
-            case FeatureType.MOVIE:
-                return this.watchHistoryCollection.updateOne({
-                    imdbId: historyItem.imdbId
-                }, { $set: historyItem }, {
-                    upsert: true
-                })
-                    .then(res => {
-                        return res.upsertedCount === 1;
-                    });
-                break;
-            case FeatureType.SERIES:
-                return this.getFeatureEpisode(historyItem.imdbId, historyItem.series, historyItem.episode)
-                    .then(episode => {
-                        if (!episode || !this.watchHistoryCollection) {
-                            return Promise.reject();
-                        }
+        return this.watchHistoryCollection.findOne({
+            imdbId,
+        }, {
+            sort: [['finishedWatchingAtDateTime', 'desc']]
+        })
 
-                        return this.watchHistoryCollection.updateOne({
-                            imdbId: historyItem.imdbId,
-                            series: historyItem.series,
-                            episode: historyItem.episode,
-                        }, { $set: {
-                                ...historyItem,
-                                episodeRuntime: episode.Runtime,
-                            } }, {
-                            upsert: true
-                        })
-                            .then(res => {
-                                return res.upsertedCount === 1;
-                            });
-                    });
-                break;
-        }
-
-        return Promise.reject();
     }
 }

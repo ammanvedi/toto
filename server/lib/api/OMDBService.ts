@@ -1,5 +1,6 @@
 import request from 'request';
 import {APIParameters, FailableResponse, Feature, FeatureEpisode, FeatureSeason} from "../../../types/OMDB";
+import {FeatureType, OmdbEpisode, OmdbFeature} from "../../../types/Schema";
 
 const promisedRequest = <T>(url: string): Promise<T> => {
     return new Promise((resolve, reject) => {
@@ -49,38 +50,98 @@ const buildOMDBUrl = (parameters: APIParameters): string => {
     return url;
 }
 
-export const getFeature = async (imdbId: string): Promise<Feature> => {
+export const getFeature = async (imdbId: string): Promise<OmdbFeature> => {
     try {
         const url = buildOMDBUrl({
             i: imdbId
         });
-        return await promisedOMDBRequest<Feature>(url);
+
+        const res = await promisedOMDBRequest<Feature>(url);
+        // omdb api provides keys in a uppercase format, we dont want this
+        return {
+            addedToLibrary: new Date().getTime(),
+            title: res.Title,
+            year: res.Year,
+            rated: res.Rated,
+            released: res.Released,
+            runtime: res.Runtime,
+            genre: res.Genre,
+            director: res.Director,
+            writer: res.Writer,
+            actors: res.Actors,
+            plot: res.Plot,
+            language: res.Language,
+            country: res.Country,
+            awards: res.Awards,
+            poster: res.Poster,
+            ratings: res.Ratings,
+            metascore: res.Metascore,
+            imdbRating: res.imdbRating,
+            imdbVotes: res.imdbVotes,
+            imdbId: res.imdbID,
+            // convert omdb featuretype to graphql featuretype
+            type: <FeatureType>res.Type.toUpperCase(),
+            totalSeasons: res.totalSeasons
+        }
     } catch {
         throw new Error('Failed OMDB request')
     }
 };
 
-export const getSeason = async (imdbId: string, season: number): Promise<FeatureSeason> => {
+export const getEpisode = async (imdbId: string, season: string, episode: string): Promise<OmdbEpisode> => {
     try {
-        const url = buildOMDBUrl({
-            i: imdbId,
-            Season: season
-        });
-        return await promisedOMDBRequest<FeatureSeason>(url);
-    } catch {
-        throw new Error('Failed OMDB request')
-    }
-};
-
-export const getEpisode = async (imdbId: string, season: string, episode: string): Promise<FeatureEpisode> => {
-    try {
+        console.log('trying to fetch episode');
         const url = buildOMDBUrl({
             i: imdbId,
             Season: season,
             Episode: episode,
         });
-        return await promisedOMDBRequest<FeatureEpisode>(url);
+        console.log('\t fetching from url', url);
+        try {
+            const res = await promisedOMDBRequest<FeatureEpisode>(url);
+            // convert this into the graphql format
+            return {
+                addedToLibrary: new Date().getTime(),
+                title: res.Title,
+                year: res.Year,
+                rated: res.Rated,
+                released: res.Released,
+                runtime: res.Runtime,
+                genre: res.Genre,
+                director: res.Director,
+                writer: res.Writer,
+                actors: res.Actors,
+                plot: res.Plot,
+                language: res.Language,
+                country: res.Country,
+                awards: res.Awards,
+                poster: res.Poster,
+                ratings: res.Ratings,
+                metascore: res.Metascore,
+                imdbRating: res.imdbRating,
+                imdbVotes: res.imdbVotes,
+                imdbId: res.imdbID,
+                // convert omdb featuretype to graphql featuretype
+                type: <FeatureType>res.Type.toUpperCase(),
+                seriesId: imdbId,
+                season: res.Season,
+                episode: res.Episode,
+                incompleteData: false,
+            }
+        } catch {
+            console.log('OMDB api failed to return episode data, use default data');
+            return {
+                seriesId: imdbId,
+                season,
+                episode,
+                addedToLibrary: new Date().getTime(),
+                title: `Episode ${episode}`,
+                type: FeatureType.Episode,
+                incompleteData: true,
+            }
+        }
+
     } catch {
-        throw new Error('Failed OMDB request')
+        throw new Error('\tFailed OMDB request')
     }
 };

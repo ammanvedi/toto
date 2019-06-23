@@ -29,5 +29,3 @@ export type LibraryResponse = {
     series: Array<LibrarySeries>,
     movies: Array<LibraryFeature>,
 }
-
-export type LibraryWatchHistoryResponse = LibraryWatchHistory;
