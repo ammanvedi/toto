@@ -1,18 +1,21 @@
 import {LibraryFeature, LibrarySeries} from "../../../types/API";
 import {ThumbProps} from "../component/thumb/thumb";
+import {FeatureThumbnailFieldsFragment, SeriesThumbnailFieldsFragment} from "../types/ClientQueries";
 
-export const getThumbPropsFromFeature = (feature: LibraryFeature | LibrarySeries): ThumbProps => {
+export const getThumbPropsFromFeature = (feature: SeriesThumbnailFieldsFragment | FeatureThumbnailFieldsFragment): ThumbProps => {
 
     switch(feature.__typename) {
         case 'LibraryFeature':
             return {
-                posterUrl: feature.Poster,
+                id: feature.imdbId,
+                posterUrl: feature.poster,
                 watchedPercentage: 0,
             };
             break;
         case 'LibrarySeries':
             return {
-                posterUrl: feature.Poster,
+                id: feature.imdbId,
+                posterUrl: feature.poster,
                 watchedPercentage: 0,
             };
     }

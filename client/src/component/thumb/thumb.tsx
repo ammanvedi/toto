@@ -3,6 +3,7 @@ import styles from './thumb.module.scss';
 import {Image} from "../image/image";
 
 export type ThumbProps = {
+    id: string,
     posterUrl: string,
     watchedPercentage: number,
     onClick?: () => void,

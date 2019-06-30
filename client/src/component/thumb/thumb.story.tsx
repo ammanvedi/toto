@@ -9,6 +9,7 @@ stories.add(
     () => (
         <div style={{width: 200}}>
             <Thumb
+                id='123'
                 posterUrl='https://i.imgur.com/Bj2tD15.jpg'
                 watchedPercentage={0} />
         </div>

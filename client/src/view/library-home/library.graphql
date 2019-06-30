@@ -1,0 +1,54 @@
+fragment SeriesWatchHistoryFields on SeriesWatchHistory {
+    imdbId
+    finishedWatchingAtSeconds
+    finishedWatchingAtDateTime
+    episode
+    series
+    episodeRuntime
+}
+
+fragment FeatureWatchHistoryFields on MovieWatchHistory {
+    __typename
+    imdbId
+    finishedWatchingAtSeconds
+    finishedWatchingAtDateTime
+}
+
+fragment SeriesThumbnailFields on LibrarySeries {
+    __typename
+    watchHistory {
+        ...SeriesWatchHistoryFields
+    }
+    imdbId
+    title
+    poster
+}
+
+fragment FeatureThumbnailFields on LibraryFeature {
+    __typename
+    watchHistory {
+        ...FeatureWatchHistoryFields
+    }
+    imdbId
+    title
+    poster
+}
+
+query LibraryHome {
+    allLibrarySeries {
+        ...SeriesThumbnailFields
+    }
+    allLibraryFeatures{
+        ...FeatureThumbnailFields
+    }
+    watchHistory{
+        __typename
+        ... on SeriesWatchHistory {
+            ...SeriesWatchHistoryFields
+        }
+        ... on MovieWatchHistory {
+            ...FeatureWatchHistoryFields
+        }
+    }
+
+}

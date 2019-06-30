@@ -1,5 +1,14 @@
 schema: ./server/graphql/schema.graphql
+documents: ./client/src/**/*.graphql
 generates:
+  ./client/src/types/Introspection.tsx:
+    plugins:
+      - fragment-matcher
+  ./client/src/types/ClientQueries.tsx:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-react-apollo
   ./types/Schema.ts:
     plugins:
       - typescript

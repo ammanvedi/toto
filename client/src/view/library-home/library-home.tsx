@@ -10,6 +10,7 @@ import VideoPage from "../video-page/video-page";
 import SeriesPage from "../series-page/series-page";
 import FeatureInfo from "../feature-info/feature-info";
 import FeaturePage from "../feature-page/feature-page";
+import { LibraryHomeComponent } from "../../types/ClientQueries";
 
 const LibraryDataProvider = DataProvider as DataProviderType<LibraryResponse>;
 
@@ -18,9 +19,9 @@ export const LibraryHome = () => {
     const [videoModalOpen, setVideoModalOpen] = useState(false);
     const [seriesModalOpen, setSeriesModalOpen] = useState(false);
     const [featureModalOpen, setFeatureModalOpen] = useState(false);
-    const [currentVideo, setCurrentVideo] = useState('');
-    const [currentSeries, setCurrentSeries] = useState<LibrarySeries | null>(null);
-    const [currentFeature, setCurrentFeature] = useState<LibraryFeature | null>(null);
+    const [currentVideo, setCurrentVideo] = useState<string | null>(null);
+    const [currentSeries, setCurrentSeries] = useState<string | null>(null);
+    const [currentFeature, setCurrentFeature] = useState<string | null>(null);
 
     const openVideoModal = () => {
         setVideoModalOpen(true);
@@ -46,17 +47,14 @@ export const LibraryHome = () => {
         setFeatureModalOpen(false);
     };
 
-    const onClicked = (item: LibraryFeature | LibrarySeries) => {
-        switch (item.__typename) {
-            case "LibraryFeature":
-                setCurrentFeature(item);
-                openFeatureModal();
-                break;
-            case "LibrarySeries":
-                setCurrentSeries(item);
-                openSeriesModal();
-                break;
-        }
+    const onFeatureClicked = (id: string) => {
+        setCurrentFeature(id);
+        openFeatureModal();
+    };
+
+    const onSeriesClicked = (id: string) => {
+        setCurrentSeries(id);
+        openSeriesModal();
     };
 
     const onEpisodeClicked = (episode: LibraryEpisode) => {
@@ -84,12 +82,18 @@ export const LibraryHome = () => {
     };
 
     return (
-        <LibraryDataProvider url={URL_LIBRARY}>
-            {({ isError, isLoading, data }) => {
+        <LibraryHomeComponent>
+            {( { data, loading, error} ) => {
 
-                if (!data) {
-                    return null
+                if (loading) {
+                    return <div>loading...</div>
                 }
+
+                if (error || !data) {
+                    return <div>oops!</div>
+                }
+
+                const { allLibraryFeatures, allLibrarySeries } = data;
 
                 return (
                     <Fragment>
@@ -98,8 +102,10 @@ export const LibraryHome = () => {
                             isOpen={seriesModalOpen}>
                             {currentSeries && (
                                 <Fragment>
+                                    <FeatureInfo feature={currentSeries}
+                                                 onRequestPlay={onSeriesRequestedPlay} />
                                     <SeriesPage feature={currentSeries}
-                                                episodeClicked={onEpisodeClicked} />
+                                                 episodeClicked={onEpisodeClicked} />
                                 </Fragment>
                             )}
                         </Modal>
@@ -107,19 +113,27 @@ export const LibraryHome = () => {
                             {...modalProps}
                             isOpen={featureModalOpen}>
                             {currentFeature && (
-                                <FeaturePage feature={currentFeature} onRequestPlay={onFeatureRequestedPlay}/>
+                                <FeatureInfo feature={currentFeature}
+                                             onRequestPlay={onFeatureRequestedPlay} />
                             )}
                         </Modal>
                         <Modal
                             {...modalProps}
                             isOpen={videoModalOpen}>
-                            <VideoPage src={currentVideo} />
+                            {currentVideo && (
+                                <VideoPage src={currentVideo} />
+                            )}
                         </Modal>
-                        <ThumbList itemClicked={onClicked} title='Movies' items={data.movies}/>
-                        <ThumbList itemClicked={onClicked} title='Series' items={data.series}/>
+                        {allLibraryFeatures && (
+                            <ThumbList itemClicked={onFeatureClicked} title='Movies' items={allLibraryFeatures.map(getThumbPropsFromFeature)}/>
+                        )}
+                        {allLibrarySeries && (
+                            <ThumbList itemClicked={onSeriesClicked} title='Series' items={allLibrarySeries.map(getThumbPropsFromFeature)}/>
+                        )}
+
                     </Fragment>
                 )
             }}
-        </LibraryDataProvider>
+        </LibraryHomeComponent>
     )
 }

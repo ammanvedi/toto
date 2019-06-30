@@ -4,14 +4,14 @@ import {DataProvider, DataProviderType} from "../../component/data-provider/data
 import {URL_SEASON} from "../../constant/url";
 import FeatureInfo from "../feature-info/feature-info";
 
-type EpisodeListProps = {
+type SeriesPageProps = {
     feature: LibrarySeries,
-    episodeClicked: (ep: LibraryEpisode) => void,
+    episodeClicked: (id: string, series: string, episode: string) => void,
 }
 
 const SeriesDataProvider = DataProvider as DataProviderType<FeatureSeasonResponse>;
 
-const SeriesPage = ({ feature, episodeClicked }: EpisodeListProps) => {
+const SeriesPage = ({ feature, episodeClicked }: SeriesPageProps) => {
     const [currentSeason, setCurrentSeason] = useState(feature.availableSeasons[0]);
 
     const onSeriesSelectChange = (evt: SyntheticEvent<HTMLSelectElement>) => {

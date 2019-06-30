@@ -1,14 +1,13 @@
 import React from 'react';
-import {LibraryFeature, LibrarySeries} from "../../../../types/API";
-import Thumb from "../thumb/thumb";
+import Thumb, {ThumbProps} from "../thumb/thumb";
 import {getThumbPropsFromFeature} from "../../helper/library-feature-helper";
 
 import styles from './thumb-list.module.scss';
 
 type ThumbListProps = {
     title: string,
-    items: Array<LibraryFeature | LibrarySeries>,
-    itemClicked: (item: LibraryFeature | LibrarySeries) => void,
+    items: Array<ThumbProps>,
+    itemClicked: (id: string) => void,
 }
 
 export const ThumbList = ({ title, items, itemClicked }: ThumbListProps) => (
@@ -16,8 +15,8 @@ export const ThumbList = ({ title, items, itemClicked }: ThumbListProps) => (
         <h1 className={styles['thumb-list__title']} >{title}</h1>
         <ul className={styles['thumb-list__list']}>
             {items.map(item => (
-                <li key={item.imdbID} className={styles['thumb-list__item']}>
-                    <Thumb {...getThumbPropsFromFeature(item)} onClick={() => itemClicked(item)} />
+                <li key={item.id} className={styles['thumb-list__item']}>
+                    <Thumb {...item} onClick={() => itemClicked(item.id)} />
                 </li>
             ))}
         </ul>
