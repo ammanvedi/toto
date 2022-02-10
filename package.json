@@ -139,7 +139,7 @@
     "html-webpack-plugin": "4.0.0-beta.5",
     "klaw-sync": "^6.0.0",
     "mongodb": "^3.2.6",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "react-apollo": "^2.5.8",
     "react-modal": "^3.8.1",
     "request": "2.88.0",
